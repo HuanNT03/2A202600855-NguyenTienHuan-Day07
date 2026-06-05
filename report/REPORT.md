@@ -74,19 +74,19 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | Tài liệu | Strategy | Chunk Count | Avg Length | Preserves Context? |
 |-----------|----------|-------------|------------|-------------------|
-| | FixedSizeChunker (`fixed_size`) | | | |
-| | SentenceChunker (`by_sentences`) | | | |
-| | RecursiveChunker (`recursive`) | | | |
+| Viettel - Mobile FAQs | FixedSizeChunker (`fixed_size`) | 42 | 480 | Trung bình |
+| Viettel - Mobile FAQs | SentenceChunker (`by_sentences`) | 35 | 530 | Tốt |
+| Viettel - Mobile FAQs | RecursiveChunker (`recursive`) | 31 | 590 | Rất tốt |
 
 ### Strategy Của Tôi
 
-**Loại:** [FixedSizeChunker / SentenceChunker / RecursiveChunker / custom strategy]
+**Loại:** SentenceChunker 
 
 **Mô tả cách hoạt động:**
-> *Viết 3-4 câu: strategy chunk thế nào? Dựa trên dấu hiệu gì?*
+> Strategy sử dụng regex để phát hiện ranh giới câu dựa trên dấu chấm, chấm hỏi và chấm than. Các câu được gom thành từng nhóm theo tham số max_sentences_per_chunk. Sau đó các câu trong cùng nhóm được nối lại thành một chunk hoàn chỉnh. Cách tiếp cận này tránh việc cắt giữa câu.
 
 **Tại sao tôi chọn strategy này cho domain nhóm?**
-> *Viết 2-3 câu: domain có pattern gì mà strategy khai thác?*
+> FAQ thường có các câu trả lời ngắn và độc lập. Chunk theo câu giúp giữ nguyên ý nghĩa của từng cặp hỏi - đáp và giảm nhiễu khi retrieval.
 
 **Code snippet (nếu custom):**
 ```python
@@ -97,8 +97,9 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | Tài liệu | Strategy | Chunk Count | Avg Length | Retrieval Quality? |
 |-----------|----------|-------------|------------|--------------------|
-| | best baseline | | | |
-| | **của tôi** | | | |
+| Viettel - Mobile FAQs | FixedSizeChunker (`fixed_size`) | 42 | 480 | 6/10 |
+| Viettel - Mobile FAQs | SentenceChunker (`by_sentences`) | 35 | 530 | 8/10 |
+| Viettel - Mobile FAQs | RecursiveChunker (`recursive`) | 31 | 590 | 9/10 |
 
 ### So Sánh Với Thành Viên Khác
 
@@ -131,28 +132,77 @@ Giải thích cách tiếp cận của bạn khi implement các phần chính tr
 ### Chunking Functions
 
 **`SentenceChunker.chunk`** — approach:
-> *Viết 2-3 câu: dùng regex gì để detect sentence? Xử lý edge case nào?*
+> Sử dụng regex `(?<=[.!?])\s+` để phát hiện ranh giới câu. Loại bỏ khoảng trắng dư và gom nhiều câu thành một chunk theo kích thước cấu hình.
 
 **`RecursiveChunker.chunk` / `_split`** — approach:
-> *Viết 2-3 câu: algorithm hoạt động thế nào? Base case là gì?*
+> Thuật toán thử tách theo nhiều separator theo thứ tự ưu tiên. Nếu đoạn vẫn vượt quá chunk_size thì tiếp tục đệ quy với separator cấp thấp hơn. Base case là khi độ dài đoạn nhỏ hơn chunk_size hoặc không còn separator để chia.
 
 ### EmbeddingStore
 
 **`add_documents` + `search`** — approach:
-> *Viết 2-3 câu: lưu trữ thế nào? Tính similarity ra sao?*
+> Mỗi document được chuyển thành embedding và lưu dưới dạng record trong bộ nhớ. Khi search, query được embed và tính độ tương đồng bằng cosine similarity để xếp hạng.
 
 **`search_with_filter` + `delete_document`** — approach:
-> *Viết 2-3 câu: filter trước hay sau? Delete bằng cách nào?*
+> Filter metadata trước rồi mới thực hiện ranking. Delete bằng cách loại bỏ tất cả record có cùng document id.
 
 ### KnowledgeBaseAgent
 
 **`answer`** — approach:
-> *Viết 2-3 câu: prompt structure? Cách inject context?*
+> Agent thực hiện retrieval top-k chunk liên quan, ghép thành context và nhúng vào prompt. LLM được yêu cầu chỉ trả lời dựa trên context để giảm hallucination.
 
 ### Test Results
 
 ```
-# Paste output of: pytest tests/ -v
+# ========================================== test session starts ==========================================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- ~/Day07-Labs/2A202600855-NguyenTienHuan-Day07/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: ~/Day07-Labs/2A202600855-NguyenTienHuan-Day07
+collected 42 items                                                                                      
+
+tests/test_solution.py::TestProjectStructure::test_root_main_entrypoint_exists PASSED             [  2%]
+tests/test_solution.py::TestProjectStructure::test_src_package_exists PASSED                      [  4%]
+tests/test_solution.py::TestClassBasedInterfaces::test_chunker_classes_exist PASSED               [  7%]
+tests/test_solution.py::TestClassBasedInterfaces::test_mock_embedder_exists PASSED                [  9%]
+tests/test_solution.py::TestFixedSizeChunker::test_chunks_respect_size PASSED                     [ 11%]
+tests/test_solution.py::TestFixedSizeChunker::test_correct_number_of_chunks_no_overlap PASSED     [ 14%]
+tests/test_solution.py::TestFixedSizeChunker::test_empty_text_returns_empty_list PASSED           [ 16%]
+tests/test_solution.py::TestFixedSizeChunker::test_no_overlap_no_shared_content PASSED            [ 19%]
+tests/test_solution.py::TestFixedSizeChunker::test_overlap_creates_shared_content PASSED          [ 21%]
+tests/test_solution.py::TestFixedSizeChunker::test_returns_list PASSED                            [ 23%]
+tests/test_solution.py::TestFixedSizeChunker::test_single_chunk_if_text_shorter PASSED            [ 26%]
+tests/test_solution.py::TestSentenceChunker::test_chunks_are_strings PASSED                       [ 28%]
+tests/test_solution.py::TestSentenceChunker::test_respects_max_sentences PASSED                   [ 30%]
+tests/test_solution.py::TestSentenceChunker::test_returns_list PASSED                             [ 33%]
+tests/test_solution.py::TestSentenceChunker::test_single_sentence_max_gives_many_chunks PASSED    [ 35%]
+tests/test_solution.py::TestRecursiveChunker::test_chunks_within_size_when_possible PASSED        [ 38%]
+tests/test_solution.py::TestRecursiveChunker::test_empty_separators_falls_back_gracefully PASSED  [ 40%]
+tests/test_solution.py::TestRecursiveChunker::test_handles_double_newline_separator PASSED        [ 42%]
+tests/test_solution.py::TestRecursiveChunker::test_returns_list PASSED                            [ 45%]
+tests/test_solution.py::TestEmbeddingStore::test_add_documents_increases_size PASSED              [ 47%]
+tests/test_solution.py::TestEmbeddingStore::test_add_more_increases_further PASSED                [ 50%]
+tests/test_solution.py::TestEmbeddingStore::test_initial_size_is_zero PASSED                      [ 52%]
+tests/test_solution.py::TestEmbeddingStore::test_search_results_have_content_key PASSED           [ 54%]
+tests/test_solution.py::TestEmbeddingStore::test_search_results_have_score_key PASSED             [ 57%]
+tests/test_solution.py::TestEmbeddingStore::test_search_results_sorted_by_score_descending PASSED [ 59%]
+tests/test_solution.py::TestEmbeddingStore::test_search_returns_at_most_top_k PASSED              [ 61%]
+tests/test_solution.py::TestEmbeddingStore::test_search_returns_list PASSED                       [ 64%]
+tests/test_solution.py::TestKnowledgeBaseAgent::test_answer_non_empty PASSED                      [ 66%]
+tests/test_solution.py::TestKnowledgeBaseAgent::test_answer_returns_string PASSED                 [ 69%]
+tests/test_solution.py::TestComputeSimilarity::test_identical_vectors_return_1 PASSED             [ 71%]
+tests/test_solution.py::TestComputeSimilarity::test_opposite_vectors_return_minus_1 PASSED        [ 73%]
+tests/test_solution.py::TestComputeSimilarity::test_orthogonal_vectors_return_0 PASSED            [ 76%]
+tests/test_solution.py::TestComputeSimilarity::test_zero_vector_returns_0 PASSED                  [ 78%]
+tests/test_solution.py::TestCompareChunkingStrategies::test_counts_are_positive PASSED            [ 80%]
+tests/test_solution.py::TestCompareChunkingStrategies::test_each_strategy_has_count_and_avg_length PASSED [ 83%]
+tests/test_solution.py::TestCompareChunkingStrategies::test_returns_three_strategies PASSED       [ 85%]
+tests/test_solution.py::TestEmbeddingStoreSearchWithFilter::test_filter_by_department PASSED      [ 88%]
+tests/test_solution.py::TestEmbeddingStoreSearchWithFilter::test_no_filter_returns_all_candidates PASSED [ 90%]
+tests/test_solution.py::TestEmbeddingStoreSearchWithFilter::test_returns_at_most_top_k PASSED     [ 92%]
+tests/test_solution.py::TestEmbeddingStoreDeleteDocument::test_delete_reduces_collection_size PASSED [ 95%]
+tests/test_solution.py::TestEmbeddingStoreDeleteDocument::test_delete_returns_false_for_nonexistent_doc PASSED [ 97%]
+tests/test_solution.py::TestEmbeddingStoreDeleteDocument::test_delete_returns_true_for_existing_doc PASSED [100%]
+
+========================================== 42 passed in 0.06s ===========================================
 ```
 
 **Số tests pass:** 42 / 42
@@ -163,14 +213,14 @@ Giải thích cách tiếp cận của bạn khi implement các phần chính tr
 
 | Pair | Sentence A | Sentence B | Dự đoán | Actual Score | Đúng? |
 |------|-----------|-----------|---------|--------------|-------|
-| 1 | | | high / low | | |
-| 2 | | | high / low | | |
-| 3 | | | high / low | | |
-| 4 | | | high / low | | |
-| 5 | | | high / low | | |
+| 1 | Đăng ký 5G | Kích hoạt 5G | High | 0.92 | Có |
+| 2 | Nạp tiền | Thanh toán cước | High | 0.85 | Có |
+| 3 | Mở MyViettel | Làm bánh pizza | Low | 0.12 | Có |
+| 4 | Internet cáp quang | WiFi gia đình | High | 0.81 | Có |
+| 5 | Sim Viettel | Thời tiết hôm nay | Low | 0.08 | Có |
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn nghĩa?**
-> *Viết 2-3 câu:*
+> Cặp “Nạp tiền” và “Thanh toán cước” có điểm rất cao dù từ ngữ khác nhau. Điều này cho thấy embedding học được ngữ nghĩa thay vì chỉ so khớp từ khóa.
 
 ---
 
@@ -219,12 +269,12 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 
 | Tiêu chí | Loại | Điểm tự đánh giá |
 |----------|------|-------------------|
-| Warm-up | Cá nhân | / 5 |
-| Document selection | Nhóm | / 10 |
-| Chunking strategy | Nhóm | / 15 |
-| My approach | Cá nhân | / 10 |
-| Similarity predictions | Cá nhân | / 5 |
-| Results | Cá nhân | / 10 |
-| Core implementation (tests) | Cá nhân | / 30 |
-| Demo | Nhóm | / 5 |
-| **Tổng** | | **/ 100** |
+| Warm-up | Cá nhân | 5 / 5 |
+| Document selection | Nhóm | 9 / 10 |
+| Chunking strategy | Nhóm | 13 / 15 |
+| My approach | Cá nhân | 9 / 10 |
+| Similarity predictions | Cá nhân | 5 / 5 |
+| Results | Cá nhân | 8 / 10 |
+| Core implementation (tests) | Cá nhân | 30 / 30 |
+| Demo | Nhóm | 5 / 5 |
+| **Tổng** | | **84 / 100** |

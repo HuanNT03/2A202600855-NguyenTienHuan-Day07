@@ -1,0 +1,33 @@
+=== Manual File Test ===
+Accepted file types: .md, .txt
+Input file list:
+  - data/Viettel - Business Service FAQs.md
+  - data/Viettel - Internet - TV FAQs.md
+  - data/Viettel - Mobile FAQs.md
+  - data/Viettel - MyViettel FAQs.md
+  - data/Viettel - Shop Viettet FAQs.md
+
+Loaded 5 documents
+  - Viettel - Business Service FAQs: data/Viettel - Business Service FAQs.md
+  - Viettel - Internet - TV FAQs: data/Viettel - Internet - TV FAQs.md
+  - Viettel - Mobile FAQs: data/Viettel - Mobile FAQs.md
+  - Viettel - MyViettel FAQs: data/Viettel - MyViettel FAQs.md
+  - Viettel - Shop Viettet FAQs: data/Viettel - Shop Viettet FAQs.md
+
+Embedding backend: mock embeddings fallback
+
+Stored 5 documents in EmbeddingStore
+
+=== EmbeddingStore Search Test ===
+Query: Điện thoại iPhone (HĐH iOS) không bắt được sóng Roaming  /  Không sử dụng được dịch vụ thoại Roaming quốc tế?
+1. score=0.200 source=data/Viettel - MyViettel FAQs.md
+   content preview: # Viettel - MyViettel FAQs  ### Q: Làm thế nào để kiểm tra các gói Mobile Internet dành cho thuê bao của tôi? Và muốn đă...
+2. score=0.112 source=data/Viettel - Shop Viettet FAQs.md
+   content preview: # Viettel - Shop Viettet FAQs  ### Q: Điện thoại iPhone (HĐH iOS) không bắt được sóng Roaming  /  Không sử dụng được dịc...
+3. score=-0.009 source=data/Viettel - Business Service FAQs.md
+   content preview: # Viettel - Business Service FAQs  ### Q: Hóa đơn điện tử là gì?  **A:** Hóa đơn điện tử:  	-   		Là tập hợp các thông đ...
+
+=== KnowledgeBaseAgent Test ===
+Question: Điện thoại iPhone (HĐH iOS) không bắt được sóng Roaming  /  Không sử dụng được dịch vụ thoại Roaming quốc tế?
+Agent answer:
+[DEMO LLM] Generated answer from prompt preview: Bạn là một trợ lý chăm sóc khách hàng chuyên nghiệp và trung thực.  Nhiệm vụ của bạn là trả lời câu hỏi của người dùng một cách chính xác CHỈ dựa trên phần ngữ cảnh (Context) cung cấp dưới đây.  [BẮT ĐẦU NGỮ CẢNH] # Viettel - MyViettel FAQs  ### Q: Làm thế nào để kiểm tra các gói Mobile Internet dành cho thuê bao của tôi? Và muốn đăng ký gói Mobile Internet làm như thế nào?  **A:** Quý khách chọn ...
