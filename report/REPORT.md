@@ -1,6 +1,6 @@
 # Báo Cáo Lab 7: Embedding & Vector Store
 
-**Họ tên:** [Tên sinh viên]
+**Họ tên:** Nguyễn Tiến Huân
 **Nhóm:** [Tên nhóm]
 **Ngày:** [Ngày nộp]
 
