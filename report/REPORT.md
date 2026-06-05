@@ -232,11 +232,11 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 
 | # | Query | Gold Answer |
 |---|-------|-------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | Điện thoại của tôi có sử dụng được 4G hay không? | Đối với các dòng máy cao cấp như Iphone 5 trở lên, hay các dòng Samsung Galaxy S, Samsung Galaxy Note… đều đã hỗ trợ 4G. |
+| 2 | Tôi không đăng nhập được app MyViettel | Bạn vui lòng kiểm tra kết nối mạng 3G/4G trên thiết bị điện thoại, hoặc gọi lên tổng đài để được hỗ trợ tốt nhất. |
+| 3 |  | |
+| 4 |  | |
+| 5 |  | |
 
 ### Kết Quả Của Tôi
 
@@ -255,7 +255,7 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 ## 7. What I Learned (5 điểm — Demo)
 
 **Điều hay nhất tôi học được từ thành viên khác trong nhóm:**
-> *Viết 2-3 câu:*
+> Phương pháp Q/A pair chunking giúp giữ trọn vẹn câu hỏi và câu trả lời đi kèm, dễ dàng cho việc grounding.
 
 **Điều hay nhất tôi học được từ nhóm khác (qua demo):**
 > Metadata filtering giúp tăng độ chính xác retrieval đáng kể khi dữ liệu thuộc nhiều domain khác nhau.

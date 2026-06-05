@@ -40,7 +40,7 @@ Nhiệm vụ của bạn là trả lời câu hỏi của người dùng một c
 [KẾT THÚC NGỮ CẢNH]
 
 Yêu Cầu Nghiêm Ngặt:
-1. Nếu câu hỏi liên quan đến các con số, phần trăm (%), hoặc điều kiện loại trừ, hãy suy luận logic thật kỹ trước khi đưa ra kết luận.
+1. Trả lời ngắn gọn, đúng trọng tâm câu hỏi.
 2. Nếu ngữ cảnh không chứa thông tin để trả lời, hãy lịch sự từ chối (Ví dụ: "Tôi không tìm thấy thông tin này trong tài liệu hệ thống"). Tuyệt đối không tự bịa thông tin (Hallucination).
 """
 

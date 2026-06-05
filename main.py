@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from openai import OpenAI
 
 from dotenv import load_dotenv
 
@@ -60,6 +61,25 @@ def demo_llm(prompt: str) -> str:
     preview = prompt[:400].replace("\n", " ")
     return f"[DEMO LLM] Generated answer from prompt preview: {preview}..."
 
+def create_openai_llm(model_name: str = "gpt-4o-mini") -> Callable[[str], str]:
+    """Hàm bọc SDK của OpenAI thành định dạng Callable[[str], str] cho Agent"""
+    
+    # Khởi tạo client tự động đọc OPENAI_API_KEY từ file .env
+    client = OpenAI()
+    
+    def llm_fn(prompt: str) -> str:
+        try:
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.0 # Set = 0 để AI trả lời bám sát tài liệu RAG nhất
+            )
+            return response.choices[0].message.content or ""
+        except Exception as e:
+            return f"[Lỗi gọi OpenAI API]: {e}"
+            
+    return llm_fn
+
 
 def run_manual_demo(question: str | None = None, sample_files: list[str] | None = None) -> int:
     files = sample_files or SAMPLE_FILES
@@ -111,7 +131,9 @@ def run_manual_demo(question: str | None = None, sample_files: list[str] | None 
         print(f"   content preview: {result['content'][:120].replace(chr(10), ' ')}...")
 
     print("\n=== KnowledgeBaseAgent Test ===")
-    agent = KnowledgeBaseAgent(store=store, llm_fn=demo_llm)
+    # agent = KnowledgeBaseAgent(store=store, llm_fn=demo_llm)
+    openai_llm_fn = create_openai_llm(model_name="gemini-3.1-flash-lite") # Dùng bản mini cho rẻ và nhanh
+    agent = KnowledgeBaseAgent(store=store, llm_fn=openai_llm_fn)
     print(f"Question: {query}")
     print("Agent answer:")
     print(agent.answer(query, top_k=3))
